@@ -1,0 +1,188 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddAttachmentInput {
+  articleVersionId: String!
+  fileName: String!
+  fileSize: Int!
+  fileType: String!
+  url: String!
+}
+
+type Article {
+  author: User!
+  categories: [Category!]!
+  createdAt: DateTime!
+  currentVersion: ArticleVersion
+  id: ID!
+  publishedAt: DateTime
+  status: ArticleStatus!
+  title: String!
+  updatedAt: DateTime!
+  versions: [ArticleVersion!]!
+}
+
+"""Statut d'un article"""
+enum ArticleStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+  UNDER_REVIEW
+}
+
+type ArticleVersion {
+  """Pièces jointes associées à cette version"""
+  attachments: [Attachment!]!
+  content: String!
+  createdAt: DateTime!
+  createdBy: User!
+  id: ID!
+  metadata: JSON
+  versionNumber: Float!
+}
+
+type Attachment {
+  fileName: String!
+  fileSize: Float!
+  fileType: String!
+  id: ID!
+  uploadedAt: DateTime!
+  uploadedBy: User!
+  url: String!
+}
+
+type Category {
+  articles: [Article!]!
+  description: String
+  id: ID!
+  name: String!
+}
+
+type ChangeLog {
+  changes: JSON!
+  createdAt: DateTime!
+  entityId: String!
+  entityType: String!
+  id: ID!
+  operation: ChangeOperation!
+  reason: String
+  user: User!
+}
+
+"""Types d'opérations de modification"""
+enum ChangeOperation {
+  CREATE
+  DELETE
+  UPDATE
+}
+
+input CreateArticleInput {
+  categoryIds: JSON
+  content: String!
+  metadata: JSON
+  reason: String
+  status: ArticleStatus = DRAFT
+  title: String!
+}
+
+input CreateCategoryInput {
+  description: String
+  name: String!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  password: String!
+  role: UserRole
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  user: User!
+}
+
+type Mutation {
+  addAttachment(data: AddAttachmentInput!): Attachment!
+  createArticle(data: CreateArticleInput!): Article!
+  createCategory(data: CreateCategoryInput!): Category!
+  createUser(data: CreateUserInput!): User!
+  deleteArticle(id: ID!, reason: String): Article!
+  deleteCategory(id: ID!): Category!
+  deleteUser(id: ID!): User!
+  login(loginInput: LoginInput!): LoginResponse!
+  removeAttachment(id: String!): Boolean!
+  restoreArticleVersion(articleId: ID!, reason: String, versionId: ID!): Article!
+  signup(signupInput: CreateUserInput!): User!
+  updateArticle(data: UpdateArticleInput!, id: ID!): Article!
+  updateCategory(data: UpdateCategoryInput!, id: ID!): Category!
+  updateUser(data: UpdateUserInput!, id: ID!): User!
+}
+
+type Query {
+  article(id: ID!): Article!
+  articleVersionAttachments(articleVersionId: String!): [Attachment!]!
+  articleVersions(articleId: ID!): [ArticleVersion!]!
+  articles(searchTerm: String, skip: Float, status: String, take: Float): [Article!]!
+  categories: [Category!]!
+  category(id: ID!): Category!
+  changeLogs(entityType: String, skip: Float, take: Float, userId: ID): [ChangeLog!]!
+  entityChangeLogs(entityId: ID!, entityType: String!): [ChangeLog!]!
+  me: User!
+  user(id: ID!): User!
+  users: [User!]!
+}
+
+input UpdateArticleInput {
+  categoryIds: [String!]
+  content: String
+  metadata: JSON
+  reason: String
+  status: ArticleStatus
+  title: String
+}
+
+input UpdateCategoryInput {
+  description: String
+  name: String
+}
+
+input UpdateUserInput {
+  email: String
+  name: String
+  password: String
+  role: UserRole
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  id: ID!
+  name: String!
+  role: UserRole!
+  updatedAt: DateTime!
+}
+
+"""Rôles disponibles pour les utilisateurs"""
+enum UserRole {
+  ADMIN
+  EDITOR
+  READER
+  REVIEWER
+}

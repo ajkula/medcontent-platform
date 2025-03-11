@@ -1,0 +1,16 @@
+{
+  "name": "medcontent-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "db:studio": "cd backend && npx prisma studio",
+    "db:migrate": "cd backend && npx prisma migrate dev",
+    "db:reset": "cd backend && npx prisma migrate reset"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

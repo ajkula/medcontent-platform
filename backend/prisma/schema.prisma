@@ -1,0 +1,155 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  REVIEWER
+  READER
+}
+
+enum ArticleStatus {
+  DRAFT
+  UNDER_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ChangeOperation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  passwordHash  String
+  role          UserRole  @default(READER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  articles        Article[]
+  articleVersions ArticleVersion[]
+  comments        Comment[]
+  changeLogs      ChangeLog[]
+  attachments     Attachment[]
+}
+
+model Article {
+  id               String         @id @default(uuid())
+  title            String
+  status           ArticleStatus  @default(DRAFT)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  publishedAt      DateTime?
+  
+  // Relations
+  author           User            @relation(fields: [authorId], references: [id])
+  authorId         String
+  currentVersion   ArticleVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  currentVersionId String?         @unique
+  versions         ArticleVersion[] @relation("Versions")
+  comments         Comment[] @relation("ArticleComments")
+  categories       ArticleCategory[] @relation("ArticleCategories")
+
+  @@map("Article")
+}
+
+model ArticleVersion {
+  id             String    @id @default(uuid())
+  versionNumber  Int
+  content        String    @db.Text
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  
+  // Relations
+  article        Article   @relation("Versions", fields: [articleId], references: [id], onDelete: Cascade)
+  articleId      String
+  createdBy      User      @relation(fields: [createdById], references: [id])
+  createdById    String
+  currentFor     Article?  @relation("CurrentVersion")
+  attachments    Attachment[] @relation("VersionAttachments")
+
+  @@unique([articleId, versionNumber])
+  @@map("ArticleVersion")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  
+  // Relations
+  articles    ArticleCategory[]
+}
+
+model ArticleCategory {
+  id         String   @id @default(uuid())
+  
+  // Relations
+  article    Article  @relation("ArticleCategories", fields: [articleId], references: [id], onDelete: Cascade)
+  articleId  String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  @@unique([articleId, categoryId])
+  @@map("ArticleCategory")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  article   Article  @relation("ArticleComments", fields: [articleId], references: [id], onDelete: Cascade)
+  articleId String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  @@map("Comment")
+}
+
+model ChangeLog {
+  id           String           @id @default(uuid())
+  entityType   String           // Le type d'entité modifiée (ex: "Article", "Comment")
+  entityId     String           // L'ID de l'entité modifiée
+  operation    ChangeOperation
+  changes      Json             // Stocke les modifications (before/after)
+  reason       String?          // Raison optionnelle de la modification
+  createdAt    DateTime         @default(now())
+  
+  // Relations
+  user         User             @relation(fields: [userId], references: [id])
+  userId       String
+}
+
+model Attachment {
+  id                String         @id @default(uuid())
+  fileName          String
+  fileType          String
+  fileSize          Int
+  url               String
+  uploadedAt        DateTime       @default(now())
+  
+  // Relations
+  articleVersion    ArticleVersion @relation("VersionAttachments", fields: [articleVersionId], references: [id], onDelete: Cascade)
+  articleVersionId  String
+  uploadedBy        User           @relation(fields: [uploadedById], references: [id])
+  uploadedById      String
+
+  @@map("Attachment")
+}
