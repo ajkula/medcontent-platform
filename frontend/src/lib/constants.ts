@@ -10,3 +10,18 @@ export const CHANGE_OPERATION_LABELS = {
   update: 'Mise à jour',
   delete: 'Suppression',
 };
+
+export const USER_ROLE_LABELS = {
+  reader: 'Lecteur',
+  reviewer: 'Re-lecteur',
+  editor: 'Editeur',
+  admin: 'Administrateur',
+};
+
+export const USER_FIELDS_LABELS = {
+  name: 'Nom',
+  email: 'Email',
+  role: 'Rôle',
+  createdAt: 'Date de création',
+  updatedAt: 'Dernière mise à jour',
+};

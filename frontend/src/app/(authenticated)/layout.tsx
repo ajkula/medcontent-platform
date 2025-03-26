@@ -22,6 +22,24 @@ export default function AuthenticatedLayout({
     );
   }
 
+  if (status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <main className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="text-center bg-white shadow-md rounded-lg p-8 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Connexion Requise
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Vous devez être connecté pour accéder à cette page et visualiser son contenu.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />

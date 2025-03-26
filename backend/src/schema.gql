@@ -94,7 +94,7 @@ input CreateCategoryInput {
 input CreateUserInput {
   email: String!
   name: String!
-  password: String!
+  password: String
   role: UserRole
 }
 
@@ -122,14 +122,16 @@ type Mutation {
   addAttachment(data: AddAttachmentInput!): Attachment!
   createArticle(data: CreateArticleInput!): Article!
   createCategory(data: CreateCategoryInput!): Category!
-  createUser(data: CreateUserInput!): User!
+  createUser(data: CreateUserInput!): UserCreationResponse!
   deleteArticle(id: ID!, reason: String): Article!
   deleteCategory(id: ID!): Category!
   deleteUser(id: ID!): User!
   login(loginInput: LoginInput!): LoginResponse!
+  regenerateSetupToken(userId: ID!): String!
   removeAttachment(id: String!): Boolean!
   restoreArticleVersion(articleId: ID!, reason: String, versionId: ID!): Article!
-  signup(signupInput: CreateUserInput!): User!
+  setupPassword(data: SetupPasswordInput!): String!
+  signup(signupInput: CreateUserInput!): LoginResponse!
   updateArticle(data: UpdateArticleInput!, id: ID!): Article!
   updateCategory(data: UpdateCategoryInput!, id: ID!): Category!
   updateUser(data: UpdateUserInput!, id: ID!): User!
@@ -144,9 +146,16 @@ type Query {
   category(id: ID!): Category!
   changeLogs(entityType: String, skip: Float, take: Float, userId: ID): [ChangeLog!]!
   entityChangeLogs(entityId: ID!, entityType: String!): [ChangeLog!]!
+  getSetupLink(userId: ID!): String
   me: User!
   user(id: ID!): User!
-  users: [User!]!
+  users(role: String, searchTerm: String, skip: Float, take: Float): [User!]!
+  validatePasswordToken(token: String!): Boolean!
+}
+
+input SetupPasswordInput {
+  password: String!
+  token: String!
 }
 
 input UpdateArticleInput {
@@ -173,10 +182,16 @@ input UpdateUserInput {
 type User {
   createdAt: DateTime!
   email: String!
+  hasSetupPassword: Boolean!
   id: ID!
   name: String!
   role: UserRole!
   updatedAt: DateTime!
+}
+
+type UserCreationResponse {
+  setupLink: String
+  user: User!
 }
 
 """Rôles disponibles pour les utilisateurs"""

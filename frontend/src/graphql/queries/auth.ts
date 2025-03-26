@@ -12,3 +12,9 @@ export const ME_QUERY = gql`
     }
   }
 `;
+
+export const VALIDATE_PASSWORD_TOKEN = gql`
+  query ValidatePasswordToken($token: String!) {
+    validatePasswordToken(token: $token)
+  }
+`;

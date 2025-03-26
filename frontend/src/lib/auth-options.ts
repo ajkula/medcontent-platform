@@ -66,18 +66,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       // Inclut les données utilisateur dans le token JWT
       if (user) {
+        token.accessToken = user.accessToken;
         token.id = user.id;
         token.role = user.role;
-        token.accessToken = user.accessToken;
       }
       return token;
     },
     async session({ session, token }) {
       // Inclut les données utilisateur dans la session
       if (token) {
+        session.accessToken = token.accessToken as string;
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        session.accessToken = token.accessToken as string;
       }
       return session;
     },
@@ -89,7 +89,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 jours
+    // maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

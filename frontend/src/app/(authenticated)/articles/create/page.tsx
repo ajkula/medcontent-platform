@@ -1,6 +1,7 @@
 'use client';
 
 import { ArticleForm } from '@/components/forms/article-form';
+import { UserRole } from '@/types/generated/graphql';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -13,7 +14,7 @@ export default function CreateArticlePage() {
   useEffect(() => {
     if (status === 'authenticated') {
       const userRole = session?.user.role;
-      if (userRole !== 'ADMIN' && userRole !== 'EDITOR') {
+      if (userRole !== UserRole.ADMIN && userRole !== UserRole.EDITOR) {
         router.push('/dashboard');
       }
     }

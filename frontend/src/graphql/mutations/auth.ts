@@ -25,3 +25,9 @@ export const SIGNUP_MUTATION = gql`
     }
   }
 `;
+
+export const SETUP_PASSWORD = gql`
+  mutation SetupPassword($data: SetupPasswordInput!) {
+    setupPassword(data: $data)
+  }
+`;

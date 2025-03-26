@@ -63,7 +63,7 @@ export default function ArticlesPage() {
         return status;
     }
   };
-  
+
   // Fonction de recherche
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +83,7 @@ export default function ArticlesPage() {
           </Link>
         )}
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Liste des articles</CardTitle>

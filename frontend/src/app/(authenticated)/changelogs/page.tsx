@@ -15,7 +15,7 @@ export default function ChangeLogsPage() {
   const [entityType, setEntityType] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-  
+
   // Récupération des journaux de modifications
   const { data, loading, refetch } = useQuery(CHANGELOGS_QUERY, {
     variables: {
@@ -26,7 +26,7 @@ export default function ChangeLogsPage() {
   });
 
   const changeLogs = data?.changeLogs || [];
-  
+
   // Fonction pour obtenir le libellé de l'opération
   const getOperationLabel = (operation: ChangeOperation) => {
     switch (operation) {
@@ -40,7 +40,7 @@ export default function ChangeLogsPage() {
         return operation;
     }
   };
-  
+
   // Fonction pour obtenir la variante du badge selon l'opération
   const getOperationBadgeVariant = (operation: ChangeOperation) => {
     switch (operation) {
@@ -54,7 +54,7 @@ export default function ChangeLogsPage() {
         return 'default';
     }
   };
-  
+
   // Fonction pour obtenir le libellé du type d'entité
   const getEntityTypeLabel = (type: string) => {
     switch (type) {
@@ -68,37 +68,40 @@ export default function ChangeLogsPage() {
         return type;
     }
   };
-  
+
   // Fonction pour formater les changements
   const formatChanges = (changes: any) => {
     if (!changes) return null;
-    
+
     try {
       // Si changes est déjà un objet, on l'utilise directement
       const changesObj = typeof changes === 'string' ? JSON.parse(changes) : changes;
-      
+
       return (
         <div className="space-y-2">
           {Object.entries(changesObj).map(([field, value]: [string, any]) => {
-            // Si la valeur est un objet avec before/after
-            if (value && typeof value === 'object' && 'before' in value && 'after' in value) {
+            if (['title', 'name', 'description', 'email', 'role', 'restoredVersionNumber', 'restoredVersionId'].includes(field)) {
+              // Si la valeur est un objet avec before/after
+              if (value && typeof value === 'object' && 'before' in value && 'after' in value) {
+                return (
+                  <div key={field} className="text-sm">
+                    <span className="font-medium">{field}:</span>{' '}
+                    <span className="line-through text-red-600">{String(value.before || '')}</span>{' '}
+                    <span className="text-green-600">{String(value.after || '')}</span>
+                  </div>
+                );
+              }
+
+              // Sinon, on affiche simplement la valeur
               return (
                 <div key={field} className="text-sm">
                   <span className="font-medium">{field}:</span>{' '}
-                  <span className="line-through text-red-600">{String(value.before || '')}</span>{' '}
-                  <span className="text-green-600">{String(value.after || '')}</span>
+                  {String(value || '')}
                 </div>
               );
             }
-            
-            // Sinon, on affiche simplement la valeur
-            return (
-              <div key={field} className="text-sm">
-                <span className="font-medium">{field}:</span>{' '}
-                {String(value || '')}
-              </div>
-            );
-          })}
+          }
+          )}
         </div>
       );
     } catch (error) {
@@ -106,7 +109,7 @@ export default function ChangeLogsPage() {
       return <span className="text-red-500">Format de changements invalide</span>;
     }
   };
-  
+
   // Génération du lien vers l'entité
   const getEntityLink = (entityType: string, entityId: string) => {
     switch (entityType) {
@@ -124,7 +127,7 @@ export default function ChangeLogsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Journal des modifications</h1>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Historique des modifications</CardTitle>
@@ -195,7 +198,7 @@ export default function ChangeLogsPage() {
               </Button>
             </div>
           </div>
-          
+
           {/* Tableau des modifications */}
           <Table>
             <TableHeader>
@@ -256,7 +259,7 @@ export default function ChangeLogsPage() {
               )}
             </TableBody>
           </Table>
-          
+
           {/* Pagination */}
           <div className="flex justify-between items-center mt-6">
             <Button

@@ -14,7 +14,13 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.validateUser(email, password);
     if (!user) {
-      throw new UnauthorizedException('Invalid identifiers');
+      const userExists = await this.usersService.findByEmail(email);
+
+      if (userExists && (!userExists.passwordHash || !userExists.hasSetupPassword)) {
+        throw new UnauthorizedException('Veuillez configurer votre mot de passe via le lien fourni par votre administrateur');
+      }
+
+      throw new UnauthorizedException('Email ou mot de passe incorrect');
     }
     return user;
   }

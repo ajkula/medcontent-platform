@@ -12,10 +12,10 @@ export class CreateUserInput {
   @IsNotEmpty()
   name: string;
 
-  @Field()
-  @IsNotEmpty()
-  @MinLength(6)
-  password: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @MinLength(6, { message: 'Le mot de passe doit contenir au moins 6 caractères' })
+  password?: string;
 
   @Field(() => UserRole, { nullable: true })
   @IsOptional()

@@ -27,5 +27,8 @@ export class User {
   @Field()
   updatedAt: Date;
 
+  @Field()
+  hasSetupPassword: boolean;
+
   // Ne pas exposer le hash du mot de passe via GraphQL
 }
