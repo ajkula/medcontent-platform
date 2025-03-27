@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { ARTICLES_QUERY } from '@/graphql/queries/articles';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -9,23 +9,56 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { formatDate } from '@/lib/utils';
+import { debounce, formatDate } from '@/lib/utils';
 import { Article, ArticleStatus } from '@/types/generated/graphql';
 import { useSession } from 'next-auth/react';
 import { ARTICLE_STATUS_LABELS } from '@/lib/constants';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function ArticlesPage() {
   const { data: session } = useSession();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [inputValue, setInputValue] = useState('');
+  const [filters, setFilters] = useState({
+    status: '',
+    search: '',
+  });
   
   // Récupération des articles avec filtres
   const { data, loading, refetch } = useQuery(ARTICLES_QUERY, {
     variables: {
-      status: statusFilter || undefined,
-      searchTerm: searchTerm || undefined,
+      status: filters.status || undefined,
+      searchTerm: filters.search || undefined,
     },
   });
+
+  useEffect(() => {
+      refetch({
+        status: filters.status || undefined,
+        searchTerm: filters.search || undefined,
+      });
+  }, [filters, refetch])
+
+  const debouncedSetSearch = useCallback(
+    debounce((value: string) => {
+      setFilters(prev => ({ ...prev, search: value }));
+    }, 500),
+    []
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSetSearch(value);
+  };
+  
+  const handleStatusChange = (status: string) => {
+    setFilters(prev => ({ ...prev, status }));
+  };
+
+  const clearFilters = () => {
+    setInputValue('');
+    setFilters({ status: '', search: '' });
+  }
 
   const articles = data?.articles || [];
   
@@ -64,15 +97,6 @@ export default function ArticlesPage() {
     }
   };
 
-  // Fonction de recherche
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    refetch({
-      status: statusFilter || undefined,
-      searchTerm: searchTerm || undefined,
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -91,31 +115,31 @@ export default function ArticlesPage() {
         <CardContent>
           {/* Filtres */}
           <div className="mb-6 space-y-4">
-            <form onSubmit={handleSearch} className="flex gap-4">
+            <div className="flex gap-4">
               <Input
                 type="text"
                 placeholder="Rechercher par titre ou contenu..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={inputValue}
+                onChange={handleSearchChange}
                 className="max-w-md"
               />
-              <Button type="submit">Rechercher</Button>
-            </form>
+              <Button type="button" onClick={clearFilters}>Nettoyer</Button>
+            </div>
             
             <div className="flex flex-wrap gap-2">
               <Button
-                variant={statusFilter === '' ? 'default' : 'outline'}
+                variant={filters.status === '' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setStatusFilter('')}
+                onClick={() => handleStatusChange('')}
               >
                 Tous
               </Button>
               {Object.values(ArticleStatus).map((status) => (
                 <Button
                   key={status}
-                  variant={statusFilter === status ? 'default' : 'outline'}
+                  variant={filters.status === status ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setStatusFilter(status)}
+                  onClick={() => handleStatusChange(status)}
                 >
                   {getStatusLabel(status)}
                 </Button>
@@ -146,7 +170,7 @@ export default function ArticlesPage() {
               ) : articles.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-10 text-gray-500">
-                    {searchTerm || statusFilter
+                    {filters.search || filters.status
                       ? 'Aucun article ne correspond aux critères de recherche'
                       : 'Aucun article disponible'}
                   </TableCell>

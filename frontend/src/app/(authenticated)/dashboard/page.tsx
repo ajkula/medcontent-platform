@@ -200,13 +200,14 @@ export default function DashboardPage() {
             ) : (
               categories.map((category: any) => (
                 <Link href={`/categories/${category.id}`} key={category.id}>
-                  <div className="p-4 border rounded-md hover:bg-gray-50 transition-colors">
-                    <h3 className="font-medium">{category.name}</h3>
+                  <div className="p-4 border rounded-md hover:bg-gray-50 transition-colors h-28 flex flex-col">
+                    <h3 className="font-medium text-base mb-1">{category.name}</h3>
                     {category.description && (
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      <p className="text-sm text-gray-500 line-clamp-2 overflow-hidden">
                         {category.description}
                       </p>
                     )}
+                    <div className='mt-auto'></div>
                   </div>
                 </Link>
               ))

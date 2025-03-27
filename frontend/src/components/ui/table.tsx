@@ -47,14 +47,14 @@ export function TableRow({ className, children }: TableRowProps) {
   );
 }
 
-interface TableCellProps {
+interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
   className?: string;
   children: ReactNode;
 }
 
-export function TableCell({ className, children }: TableCellProps) {
+export function TableCell({ className, children, ...props }: TableCellProps) {
   return (
-    <td className={cn("p-4 align-middle", className)}>
+    <td className={cn("p-4 align-middle", className)} {...props}>
       {children}
     </td>
   );
